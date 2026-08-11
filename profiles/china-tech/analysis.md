@@ -26,3 +26,7 @@ Score each dimension, then sum:
 When a model is released, ask: what is genuinely new, are benchmarks credible, is it open, do API/coding/agent capabilities change, does it alter the current landscape? Downgrade vendor-only benchmark claims. Exclude financing news with no technical content.
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.

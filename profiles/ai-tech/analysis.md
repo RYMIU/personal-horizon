@@ -26,3 +26,7 @@ Score each dimension, then sum:
 For model releases ask: what is genuinely new, are benchmarks credible, is it open, do API/coding/agent capabilities change materially, does it alter the landscape? Treat substantive community debate (e.g. practitioner experience reports) as evidence of practical value. Do not equate popularity with importance.
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.

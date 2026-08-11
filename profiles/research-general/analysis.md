@@ -26,3 +26,7 @@ Score each dimension, then sum:
 A university press release is not evidence of importance; evaluate the underlying result, venue, design, and scale. Prefer the original paper as the primary link. Be skeptical of single small studies making sweeping claims.
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.

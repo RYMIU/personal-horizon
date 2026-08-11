@@ -26,3 +26,7 @@ Score each dimension, then sum:
 Apply the filter question strictly: could this event affect the world, China, Canada, research, the economy, or the coming years' policy environment? Routine US domestic political disputes do not pass by default. For war/security, prioritize verified developments over claims. Downgrade Tier C/D sourcing for major factual claims.
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.

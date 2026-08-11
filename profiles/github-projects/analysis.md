@@ -26,3 +26,7 @@ Score each dimension, then sum:
 Judge the implementation, not the README. Check for: actual code, documentation quality, maintenance activity, growth momentum, and relation to the reader's interests. Penalize: pure API wrappers, cloned projects, marketing-driven repos without substance.
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.

@@ -26,3 +26,7 @@ Score each dimension, then sum:
 Prefer official data (NBS, PBOC, MOF) over media interpretation. Distinguish facts (data, decisions) from opinion. Do not reward dramatic framing of small moves. Company news only counts when macro-relevant.
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.

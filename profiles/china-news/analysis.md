@@ -26,3 +26,7 @@ Score each dimension, then sum:
 Prefer original government documents over secondhand reporting. Downgrade items whose major factual claims come only from Tier C/D sources without corroboration. Do not reward heat or trending rank. Exclude entertainment, celebrity, and low-impact local news even if widely discussed.
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.

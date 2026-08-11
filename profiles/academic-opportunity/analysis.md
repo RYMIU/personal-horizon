@@ -28,3 +28,7 @@ Score each dimension, then sum:
 Always check: can the reader apply, what is the deadline, what are the eligibility constraints (citizenship, degree stage), the funding amount, the institution, and the research area. Never infer a deadline that is not stated. International-student eligibility matters: note when an opportunity is restricted (e.g. domestic only).
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.

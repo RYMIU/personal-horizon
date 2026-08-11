@@ -28,3 +28,7 @@ Weights differ from other profiles: topical relevance dominates.
 Check both the problem and the method: a paper about epidemic dynamics using bifurcation analysis is a direct hit; a paper that merely cites network science is not. For optimization papers, note the exact algorithmic contribution (e.g. new branching rule, new decomposition). Prefer the original paper or preprint as the primary link.
 
 Use three to five specific topic tags.
+
+# Output language
+
+Write the reason and summary fields in Simplified Chinese. Tags may stay in English when they are technical terms.
