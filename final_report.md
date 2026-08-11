@@ -150,3 +150,42 @@ Quota：china ≤5、world ≤3、ai ≤4、research ≤4、opportunity ≤2、g
   核心 Python 改动最小 ✓ / 新功能有测试 ✓ / pytest 无新增失败 ✓ /
   README 部署说明 ✓ / sources_catalog 完整 ✓
 - Quality：待 Phase 4 实跑后人工评审
+
+## 14. GitHub Actions 部署与邮件简报（2026-08-12 凌晨）
+
+仓库已推送至 `RYMIU/personal-horizon`（Public，默认分支 `personal-horizon`），
+每日无人值守运行已上线。
+
+**新增改动（提交 `cdadf4f`、`4d08e09`）**
+
+- `EmailConfig` 新增 `recipients` / `brief` / `pages_url` 字段（默认关闭，
+  上游行为不变）；复用现有 `EmailManager` SMTP 发送，未重写邮件系统。
+- `DailySummarizer.generate_brief`：复用 Top-N 与今日概览渲染生成邮件简报，
+  附保留条数与 Pages 链接；orchestrator 按 `email.brief` 切换全文/简报。
+- `config.github.json` 替换为个性化生产配置 + QQ 邮箱块
+  （smtp.qq.com:465 SSL，IMAP 关闭，brief 开启，发件=收件）。
+- 授权码零落盘：程序只读 `EMAIL_PASSWORD` 环境变量，workflow 映射
+  `EMAIL_PASSWORD: ${{ secrets.QQMAIL }}`，日志由 GitHub 自动掩码。
+- `daily-summary.yml` 启用：cron `0 0 * * *`（UTC 00:00 = 北京时间 08:00），
+  新增 `test_email` 手动输入可只验证 SMTP；`scripts/send_test_email.py`。
+- `docs/_config.yml` 指向 `rymiu.github.io/personal-horizon`；
+  `tests/test_email_brief.py` 新增 7 个测试，全量回归无新增失败。
+
+**验证记录**
+
+- test_email 运行（31516399892）：success，测试邮件已送达。
+- 完整 pipeline 验证运行（31516611006）：success。抓取 702 → 分析 692
+  （DeepSeek，无 401）→ 配额后 84 → 最终 19 条；富化 15/19；
+  日报已提交至 `gh-pages/_posts/2026-08-11-summary-zh.md`；
+  简报邮件已送达且经人工确认为 brief 格式；token 883,760。
+- Pages 已开启（gh-pages / 根目录），站点与邮件链接均验证 200：
+  `https://rymiu.github.io/personal-horizon/` 与
+  `/2026/08/11/summary-zh.html`（Jekyll 日期 permalink 与
+  orchestrator 链接构造一致）。
+
+**运维备忘**
+
+- GitHub 定时任务可能延迟 10–30 分钟，属正常现象。
+- Public 仓库 Actions 不计私有分钟数；每日成本约 ¥1.5–2（DeepSeek）。
+- 曾遇到 GitHub 未注册新 workflow 的问题（连上游 deploy-docs 也未注册），
+  通过一次携带 workflow 文件变更的推送触发重新注册解决。
