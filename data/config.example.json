@@ -1,9 +1,8 @@
 {
   "ai": {
-    "provider": "deepseek",
-    "model": "deepseek-chat",
-    "base_url": "https://api.deepseek.com",
-    "api_key_env": "DEEPSEEK_API_KEY",
+    "provider": "openai",
+    "model": "gpt-4",
+    "api_key_env": "OPENAI_API_KEY",
     "temperature": 0.3,
     "max_tokens": 4096,
     "throttle_sec": 0,
@@ -505,7 +504,9 @@
       }
     },
     "default_group": "other",
-    "default_group_limit": null
+    "default_group_limit": null,
+    "top_items": 3,
+    "daily_overview": true
   },
   "webhook": {
     "enabled": false,

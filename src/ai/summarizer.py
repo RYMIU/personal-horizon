@@ -56,6 +56,11 @@ LABELS = {
         "references": "References",
         "tags": "Tags",
         "selected_items": "From {total} items, {selected} important content pieces were selected",
+        "top_items": "Today's Top {n}",
+        "top_reason": "Why it matters today",
+        "overview": "Daily Overview",
+        "overview_scanned": "Scanned {total} items today, kept {selected}.",
+        "overview_focus": "Focus areas",
         "empty_analyzed": "Analyzed {total} items, but none met the importance threshold.",
         "empty_body": (
             "No significant developments today. This might indicate:\n"
@@ -76,6 +81,11 @@ LABELS = {
         "references": "参考链接",
         "tags": "标签",
         "selected_items": "从 {total} 条内容中筛选出 {selected} 条重要资讯。",
+        "top_items": "今天最值得关注的 {n} 件事",
+        "top_reason": "为什么值得今天看",
+        "overview": "今日概览",
+        "overview_scanned": "今天共扫描 {total} 条信息，保留 {selected} 条。",
+        "overview_focus": "重点集中于",
         "empty_analyzed": "已分析 {total} 条内容，但没有达到重要性阈值的条目。",
         "empty_body": (
             "今日暂无重要动态，可能原因：\n"
@@ -122,9 +132,13 @@ class DailySummarizer:
         self,
         profile_names: Optional[Dict[str, Dict[str, str]]] = None,
         profile_order: Optional[List[str]] = None,
+        top_items: int = 0,
+        daily_overview: bool = False,
     ):
         self.profile_names = profile_names or {}
         self.profile_order = profile_order or []
+        self.top_items = max(0, top_items)
+        self.daily_overview = daily_overview
 
     @staticmethod
     def _profile_id(item: ContentItem) -> str:
@@ -271,7 +285,144 @@ class DailySummarizer:
             )
 
         toc = "\n\n".join(toc_sections) + "\n\n---\n\n"
-        return normalize_language(header + toc + "".join(body_sections), language)
+        top_section = self._format_top_items(items, labels, language)
+        overview_section = self._format_overview(view, items, total_fetched, labels, language)
+        return normalize_language(
+            header + top_section + overview_section + toc + "".join(body_sections),
+            language,
+        )
+
+    def _item_score(self, item: ContentItem) -> float:
+        analysis = item.processing.analysis if item.processing else None
+        if analysis and analysis.score is not None:
+            return float(analysis.score)
+        return -1.0
+
+    def _select_top_items(self, items: List[ContentItem], count: int) -> List[ContentItem]:
+        """Pick top-scored items with topic diversity.
+
+        A candidate is treated as the same topic as an already-picked item when
+        it shares at least two normalized analysis tags with it. A second fill
+        pass (still URL-unique) tops the selection up when diversity leaves it
+        short.
+        """
+        ranked = sorted(
+            items, key=lambda item: self._item_score(item), reverse=True
+        )
+
+        def tags_of(item: ContentItem) -> set:
+            analysis = item.processing.analysis if item.processing else None
+            if not analysis or not analysis.tags:
+                return set()
+            return {str(tag).strip().lower() for tag in analysis.tags if str(tag).strip()}
+
+        picked: List[ContentItem] = []
+        seen_urls: set = set()
+
+        def take(candidate: ContentItem, enforce_diversity: bool) -> bool:
+            url_key = str(candidate.url)
+            if url_key in seen_urls:
+                return False
+            if enforce_diversity:
+                candidate_tags = tags_of(candidate)
+                for chosen in picked:
+                    if len(candidate_tags & tags_of(chosen)) >= 2:
+                        return False
+            picked.append(candidate)
+            seen_urls.add(url_key)
+            return True
+
+        for candidate in ranked:
+            if len(picked) >= count:
+                break
+            take(candidate, enforce_diversity=True)
+        for candidate in ranked:
+            if len(picked) >= count:
+                break
+            take(candidate, enforce_diversity=False)
+        return picked
+
+    def _format_top_items(
+        self,
+        items: List[ContentItem],
+        labels: dict,
+        language: str,
+    ) -> str:
+        if self.top_items <= 0 or not items:
+            return ""
+        top = self._select_top_items(items, min(self.top_items, len(items)))
+        if not top:
+            return ""
+        lines = [f"## {labels['top_items'].format(n=len(top))}", ""]
+        for position, item in enumerate(top, start=1):
+            artifact = (
+                item.processing.artifacts.get(language) if item.processing else None
+            )
+            analysis = item.processing.analysis if item.processing else None
+            title = _escape_markdown(artifact.title if artifact else item.title)
+            url = _safe_url(item.url)
+            score = (
+                analysis.score if analysis and analysis.score is not None else "?"
+            )
+            reason = (analysis.reason if analysis and analysis.reason else "") or (
+                analysis.summary if analysis and analysis.summary else ""
+            )
+            reason = _escape_markdown(reason.strip())
+            if language == "zh":
+                title = _pangu(title)
+                reason = _pangu(reason)
+            title_link = f"[{title}]({url})" if url else title
+            lines.append(f"{position}. {title_link} ⭐️ {score}/10")
+            if reason:
+                lines.append(f"   {labels['top_reason']}: {reason}")
+        return "\n".join(lines) + "\n\n---\n\n"
+
+    def _format_overview(
+        self,
+        view: "DailySummaryView",
+        items: List[ContentItem],
+        total_fetched: int,
+        labels: dict,
+        language: str,
+    ) -> str:
+        if not self.daily_overview:
+            return ""
+        lines = [
+            f"## {labels['overview']}",
+            "",
+            labels["overview_scanned"].format(
+                total=total_fetched, selected=len(items)
+            ),
+        ]
+        ranked_groups = sorted(
+            view.groups, key=lambda group: len(group.items), reverse=True
+        )[:3]
+        tag_counts: Dict[str, int] = {}
+        for item in items:
+            analysis = item.processing.analysis if item.processing else None
+            if analysis and analysis.tags:
+                for tag in analysis.tags:
+                    key = str(tag).strip().lower()
+                    if key:
+                        tag_counts[key] = tag_counts.get(key, 0) + 1
+        focus_parts = []
+        for group in ranked_groups:
+            if not group.items:
+                continue
+            name = _escape_markdown(group.name)
+            if language == "zh":
+                name = _pangu(name)
+            focus_parts.append(f"{name}（{len(group.items)}）")
+        top_tags = [
+            tag
+            for tag, _ in sorted(
+                tag_counts.items(), key=lambda kv: kv[1], reverse=True
+            )[:3]
+        ]
+        focus_parts.extend(f"`#{_escape_markdown(tag)}`" for tag in top_tags)
+        if focus_parts:
+            lines.extend(["", f"{labels['overview_focus']}: " + "、".join(focus_parts)])
+        return "\n".join(lines) + "\n\n---\n\n"
 
     def generate_webhook_overview(
         self,

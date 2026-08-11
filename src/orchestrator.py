@@ -298,6 +298,8 @@ class HorizonOrchestrator:
                 summarizer = DailySummarizer(
                     profile_names=self.profiles.names,
                     profile_order=self.config.digest.profile_order,
+                    top_items=self.config.digest.top_items,
+                    daily_overview=self.config.digest.daily_overview,
                 )
                 summary = await summarizer.generate_summary(important_items, today, len(all_items), language=lang)
 
@@ -1084,6 +1086,8 @@ class HorizonOrchestrator:
         summarizer = DailySummarizer(
             profile_names=self.profiles.names,
             profile_order=self.config.digest.profile_order,
+            top_items=self.config.digest.top_items,
+            daily_overview=self.config.digest.daily_overview,
         )
 
         return await summarizer.generate_summary(items, date, total_fetched, language=language)

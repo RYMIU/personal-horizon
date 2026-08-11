@@ -588,6 +588,8 @@ class DigestConfig(BaseModel):
     default_group: str = "other"
     default_group_limit: Optional[int] = Field(default=None, gt=0)
     profile_order: List[str] = Field(default_factory=list)
+    top_items: int = Field(default=0, ge=0)
+    daily_overview: bool = False
 
     @field_validator("profile_order")
     @classmethod
