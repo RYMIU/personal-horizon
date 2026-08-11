@@ -533,6 +533,9 @@ class EmailConfig(BaseModel):
     subscribe_keyword: str = "SUBSCRIBE"
     unsubscribe_keyword: str = "UNSUBSCRIBE"
     enabled: bool = False
+    recipients: List[str] = Field(default_factory=list)
+    brief: bool = False
+    pages_url: Optional[str] = None
 
 
 class CategoryGroupConfig(BaseModel):

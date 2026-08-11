@@ -2,10 +2,15 @@ name: Daily Horizon Summary
 
 on:
   schedule:
-    # GitHub scheduled workflows use UTC. 20:00 UTC is 04:00 Asia/Shanghai;
-    # this intentionally runs early to offset the observed schedule delay.
-    - cron: '0 23 * * *'
+    # GitHub scheduled workflows use UTC. 00:00 UTC is 08:00 Asia/Shanghai.
+    - cron: '0 0 * * *'
   workflow_dispatch:      # Allow manual trigger
+    inputs:
+      test_email:
+        description: 'Only send a test email (skip the full pipeline)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   daily-summary:
@@ -33,22 +38,32 @@ jobs:
       - name: Prepare GitHub Actions config
         run: cp data/config.github.json data/config.json
 
+      - name: Test email delivery only
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.test_email }}
+        env:
+          EMAIL_PASSWORD: ${{ secrets.QQMAIL }}
+        run: uv run python scripts/send_test_email.py
+
       - name: Run Horizon
+        if: ${{ !inputs.test_email }}
         env:
           # Map secrets to environment variables expected by config.json
-          # Modify these based on your data/config.github.json provider settings
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           LWN_KEY: ${{ secrets.LWN_KEY }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           HORIZON_WEBHOOK_URL: ${{ secrets.HORIZON_WEBHOOK_URL }}
+          # QQ mail SMTP authorization code (secret name: QQMAIL)
+          EMAIL_PASSWORD: ${{ secrets.QQMAIL }}
         run: uv run horizon --hours 24
 
       - name: Set current date as environment variable
+        if: ${{ !inputs.test_email }}
         run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Deploy to GitHub Pages
+        if: ${{ !inputs.test_email }}
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

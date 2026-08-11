@@ -61,6 +61,7 @@ LABELS = {
         "overview": "Daily Overview",
         "overview_scanned": "Scanned {total} items today, kept {selected}.",
         "overview_focus": "Focus areas",
+        "view_full": "View the full digest",
         "empty_analyzed": "Analyzed {total} items, but none met the importance threshold.",
         "empty_body": (
             "No significant developments today. This might indicate:\n"
@@ -86,6 +87,7 @@ LABELS = {
         "overview": "今日概览",
         "overview_scanned": "今天共扫描 {total} 条信息，保留 {selected} 条。",
         "overview_focus": "重点集中于",
+        "view_full": "查看完整日报",
         "empty_analyzed": "已分析 {total} 条内容，但没有达到重要性阈值的条目。",
         "empty_body": (
             "今日暂无重要动态，可能原因：\n"
@@ -291,6 +293,37 @@ class DailySummarizer:
             header + top_section + overview_section + toc + "".join(body_sections),
             language,
         )
+
+    def generate_brief(
+        self,
+        items: List[ContentItem],
+        date: str,
+        total_fetched: int,
+        language: str = "en",
+        link: Optional[str] = None,
+    ) -> str:
+        """Generate a compact email brief (Top-N + overview + link, no full body).
+
+        Reuses the same Top-N and overview rendering as the full digest so the
+        email notification stays consistent with the published summary.
+        """
+        labels = LABELS.get(language, LABELS["en"])
+
+        if not items:
+            body = self._generate_empty_summary(date, total_fetched, labels)
+        else:
+            header = f"# {labels['header']} - {date}\n\n---\n\n"
+            view = self.build_view(items, language)
+            body = (
+                header
+                + self._format_top_items(items, labels, language)
+                + self._format_overview(view, items, total_fetched, labels, language)
+            )
+
+        if link:
+            body += f"\n\n---\n\n[{labels['view_full']}]({link})\n"
+
+        return normalize_language(body, language)
 
     def _item_score(self, item: ContentItem) -> float:
         analysis = item.processing.analysis if item.processing else None

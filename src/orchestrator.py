@@ -355,9 +355,31 @@ class HorizonOrchestrator:
                     self.console.print(
                         f"{self.icons['email']} Sending {lang.upper()} email summary..."
                     )
-                    subscribers = self.storage.load_subscribers()
+                    email_cfg = self.config.email
+                    recipients = list(
+                        dict.fromkeys(
+                            email_cfg.recipients + self.storage.load_subscribers()
+                        )
+                    )
+                    if email_cfg.brief:
+                        link = None
+                        if email_cfg.pages_url:
+                            year, month, day = today.split("-")
+                            link = (
+                                f"{email_cfg.pages_url.rstrip('/')}"
+                                f"/{year}/{month}/{day}/summary-{lang}.html"
+                            )
+                        body = summarizer.generate_brief(
+                            important_items,
+                            today,
+                            len(all_items),
+                            language=lang,
+                            link=link,
+                        )
+                    else:
+                        body = summary
                     subject = f"Horizon Summary ({lang.upper()}) - {today}"
-                    self.email_manager.send_daily_summary(summary, subject, subscribers)
+                    self.email_manager.send_daily_summary(body, subject, recipients)
 
                 # Send webhook notification if configured
                 if self.webhook_notifier:
