@@ -84,15 +84,54 @@ Quota：china ≤5、world ≤3、ai ≤4、research ≤4、opportunity ≤2、g
 
 ## 10. 已知问题
 
-1. **Phase 4 完整 pipeline 实跑受阻**：当前环境无有效 AI API key（环境中的
-   `KIMI_API_KEY` 对 Moonshot 开放平台两端点均 401），`sample_digest_v1.md`
-   待用户提供 key 后生成。基线运行已验证：抓取正常、AI 全部 401 时 pipeline
-   不崩溃、正常产出空日报。
+1. ~~Phase 4 实跑受阻~~ **已解决**（2026-08-11）：用户提供 DeepSeek key 后
+   完整 24h pipeline 实跑成功，产出 `sample_digest_v1.md`（见第 13 节）。
+   运行中修复了两个 prompt 级问题并提交：analysis 理由默认英文（9 个
+   analysis.md 增加中文输出指令）、enrichment block 标题措辞不统一
+   （9 个 enrichment.md 增加标题一致性指令）。
 2. 本机 23 个上游测试因代理 fake-IP DNS（198.18.x）与 Windows 路径断言失败，
    属环境问题（见 baseline.md），CI/正常网络下应为绿。
-3. 中国官方一手源覆盖为间接方案（Google News 聚合），可靠性 B；自建 RSSHub 可升级。
+3. 中国官方一手源覆盖为间接方案（Google News 聚合，主链接为 Google 跳转 URL），
+   可靠性 B；自建 RSSHub 可升级。
 4. 周刊类期刊（Science/PNAS/INFORMS 等）多数日子 0 条，属正常出版节奏。
 5. Anthropic/Meta/Microsoft 无可用 feed，由科技媒体覆盖。
+6. 栏目空缺的调参观察：实跑当天 china-tech 0 条（阈值 6.8）与
+   research-general 0 条（阈值 7.4），符合宁缺毋滥；若连续多日如此，
+   可按 PERSONALIZATION.md 的调参指引每次降 0.2 观察。
+
+## 13. Phase 4 实跑结果（2026-08-11）
+
+`uv run horizon --hours 24 -l INFO`（DeepSeek deepseek-chat）：
+
+| 阶段 | 数量 |
+|---|---|
+| 抓取 | 700 条（RSS 689 + HN 7 + OSS Insight 4） |
+| AI 分析 | 690 条（全部成功，0 次 401） |
+| 阈值通过 | 81 条 |
+| Quota 后（enrichment） | **18 条**（落在 15–20 目标区间） |
+| Token 消耗 | 874,288（输入 766,813 / 输出 107,475） |
+| 成本量级 | 约 ¥1.5–2/天（DeepSeek 定价） |
+
+栏目分布：中国要闻 3、中国经济 2、国际要闻 3、AI/Tech 4、
+与我研究高度相关 4、学术机会 1、GitHub 1；china-tech 与 research-general
+当天为 0（宁缺毋滥）。Top 3 全部由全局最高分产生（9.0/8.0/8.0，
+均为 research-personal 论文，含六维评分理由）。
+
+人工质量评审（对照任务书 §42）：
+
+- [x] 无娱乐垃圾、无低价值热搜
+- [x] 中国重大新闻覆盖合理（教育部就业政策、国务院任免、溃坝调查、央行十五五规划、5000 亿逆回购）
+- [x] 国际重大新闻覆盖合理（朝鲜导弹、俄炼油厂袭击、霍尔木兹谈判）
+- [x] AI 信息具有技术价值（Meta 开源代理模型、NVIDIA Nemotron、IBM token 优化、开源 TTS）
+- [x] Research 与画像明显相关（ICNN 代理模型、IVQR、Lasso 普适性、F1 校准——全部直击画像）
+- [x] Opportunity 可操作（Mitacs GRI，含 deadline 2026-09-16、机构、建议行动）
+- [x] GitHub 推荐非纯按 stars（分析了代码活跃度与用途）
+- [x] 中文自然；论文标题保留英文；专业术语中英并置
+- [x] 未发现编造事实/deadline/论文内容（抽查 arXiv 编号与作者与原文一致）
+- [x] 无重复条目；每条保留来源链接
+
+遗留小瑕疵：Google News 主链接为跳转 URL（原生行为）；
+个别标签中英混排（技术术语保留英文，符合规则）。
 
 ## 11. 后续最值得优化的 3 件事
 
