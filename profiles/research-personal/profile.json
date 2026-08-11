@@ -1,0 +1,42 @@
+{
+  "id": "research-personal",
+  "name": "My Research Topics",
+  "display_names": {
+    "zh": "与我研究高度相关"
+  },
+  "match": "match.md",
+  "analysis": "analysis.md",
+  "content": {
+    "analysis_max_chars": 1600,
+    "enrichment_max_chars": 8000,
+    "sampling": "prefix"
+  },
+  "enrichment": {
+    "prompt": "enrichment.md",
+    "blocks": [
+      {
+        "id": "summary",
+        "type": "section",
+        "tools": [],
+        "primary": true
+      },
+      {
+        "id": "paper_details",
+        "type": "section",
+        "tools": [],
+        "optional": true
+      },
+      {
+        "id": "personal_relevance",
+        "type": "section",
+        "tools": []
+      },
+      {
+        "id": "impact_next",
+        "type": "section",
+        "tools": [],
+        "optional": true
+      }
+    ]
+  }
+}

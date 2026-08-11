@@ -1,0 +1,41 @@
+{
+  "id": "research-general",
+  "name": "Research Frontiers",
+  "display_names": {
+    "zh": "科研前沿"
+  },
+  "match": "match.md",
+  "analysis": "analysis.md",
+  "content": {
+    "analysis_max_chars": 1600,
+    "enrichment_max_chars": 8000,
+    "sampling": "prefix"
+  },
+  "enrichment": {
+    "prompt": "enrichment.md",
+    "blocks": [
+      {
+        "id": "summary",
+        "type": "section",
+        "tools": [],
+        "primary": true
+      },
+      {
+        "id": "paper_details",
+        "type": "section",
+        "tools": [],
+        "optional": true
+      },
+      {
+        "id": "why_important",
+        "type": "section",
+        "tools": ["web_search"]
+      },
+      {
+        "id": "personal_relevance",
+        "type": "section",
+        "tools": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "id": "china-news",
+  "name": "China News",
+  "display_names": {
+    "zh": "中国要闻"
+  },
+  "match": "match.md",
+  "analysis": "analysis.md",
+  "content": {
+    "analysis_max_chars": 1200,
+    "enrichment_max_chars": 8000,
+    "sampling": "prefix"
+  },
+  "enrichment": {
+    "prompt": "enrichment.md",
+    "blocks": [
+      {
+        "id": "summary",
+        "type": "section",
+        "tools": [],
+        "primary": true
+      },
+      {
+        "id": "why_important",
+        "type": "section",
+        "tools": ["web_search"]
+      },
+      {
+        "id": "personal_relevance",
+        "type": "section",
+        "tools": []
+      },
+      {
+        "id": "impact_next",
+        "type": "section",
+        "tools": ["web_search"],
+        "optional": true
+      }
+    ]
+  }
+}
