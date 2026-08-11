@@ -1,0 +1,23 @@
+theme: jekyll-theme-cayman
+title: Personal Horizon
+description: AI-curated personalized daily digest in Chinese and English
+baseurl: "/personal-horizon" # the subpath of your site, e.g. /blog
+url: "https://rymiu.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+
+# Build settings
+markdown: kramdown
+future: true # Allow future posts to be published
+plugins:
+  - jekyll-feed
+feed:
+  path: feed.xml
+exclude:
+  - ".github"
+  - "node_modules"
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "default"
