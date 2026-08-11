@@ -67,6 +67,23 @@
 </table>
 </details>
 
+## Personal Horizon（本仓库的个人定制版）
+
+本仓库是 Horizon 的个人定制版 **Personal Horizon**：中国新闻 + 国际新闻 +
+AI/科技 + 科研 + 学术机会 + GitHub 项目，每日 15–20 条高价值信息，
+默认简体中文输出，日报开头给出"今天最值得关注的 3 件事"。
+
+- 个性化设计、评分体系、部署与调参：[docs/PERSONALIZATION.md](docs/PERSONALIZATION.md)
+- 全部来源及可用性测试记录：[docs/sources_catalog.md](docs/sources_catalog.md)
+- 基线与环境说明：[docs/baseline.md](docs/baseline.md)
+
+部署快速版：`cp data/config.example.json data/config.json` → 在 `.env` 填入
+任一 OpenAI 兼容 provider 的密钥（推荐 `deepseek` / `ali` 等国内可用服务）→
+`uv sync --extra dev && uv run horizon --hours 24`。GitHub Actions 复用上游
+daily workflow，密钥放仓库 Secrets，支持 `workflow_dispatch` 手动触发。
+
+---
+
 ## Why Horizon?
 
 Good news is scattered; bad news is endless. Horizon gives you a personal first pass over Hacker News, Reddit, Telegram, RSS, and GitHub: it fetches, deduplicates, scores, filters, and enriches stories with background context and community discussion.
