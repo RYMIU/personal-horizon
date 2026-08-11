@@ -1,5 +1,38 @@
 # Personal Horizon — Sources Catalog
 
+## Phase 3 integration test (2026-08-11)
+
+Production config (`data/config.example.json`) exercised through Horizon's own
+scrapers (`scripts/fetch_test.py`, 26h window), after volume adjustments:
+
+- **Total: 675 items/run** across 47 enabled feeds + Hacker News + OSS Insight,
+  0 fetch errors, 0 duplicate URLs within feeds, all items with valid dates.
+- By category: china-news 35 · china-tech 155 · china-economy 89 ·
+  world-news 80 · ai-tech 37 · research-general 79 · research-personal 192 ·
+  academic-opportunity 4 · github-projects 4.
+
+Volume-control decisions taken during integration:
+
+| Change | Reason |
+|---|---|
+| `arXiv cs.LG` disabled | 570 items/day — analysis-cost explosion; stat.ML/math.OC/q-bio.PE cover the reader's areas |
+| `cnBeta` disabled | 96 items/day, C-grade, largely duplicates other CN tech feeds |
+| OSS Insight `min_stars` 10 → 5 | past_24_hours top star-gain can be < 10 on slow days; 10 yields 0 items |
+| bioRxiv/medRxiv kept at `subject=all` | subject-specific feeds (`subject=bioinformatics`, `subject=epidemiology`) omit entry dates, so Horizon drops all their items |
+
+Cadence / stability notes:
+
+- **Weekly TOC feeds** (Science, PNAS, Cell, INFORMS OR & IJOC, Mathematical
+  Biosciences, Nature MI, JMB, NIH, Mitacs) legitimately return 0 within a 24h
+  window on most days; they contribute when a new issue posts.
+- **CBC** (both feeds): intermittent `ConnectError` from this network;
+  marked **unstable**. Pipeline tolerates the failure.
+- **Google News queries**: intermittent rate-limiting (SSL resets) when fetched
+  repeatedly in a short window; fine at once-daily cadence.
+- OSS Insight returned 4 items at `min_stars=5`.
+
+---
+
 Phase 2 source discovery results. Every source listed here was fetch-tested on
 **2026-08-11** from the project network (China ISP) using Horizon's own
 fetch stack (`httpx` + `feedparser`, browser UA, redirect following).
