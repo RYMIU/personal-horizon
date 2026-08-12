@@ -2,8 +2,10 @@ name: Daily Horizon Summary
 
 on:
   schedule:
-    # GitHub scheduled workflows use UTC. 00:00 UTC is 08:00 Asia/Shanghai.
-    - cron: '0 0 * * *'
+    # 每天 08:17（Asia/Shanghai）。timezone 为 GitHub 2026-03 新增的原生支持；
+    # 避开整点/半点以规避调度拥堵。中国无夏令时，无漂移问题。
+    - cron: '17 8 * * *'
+      timezone: 'Asia/Shanghai'
   workflow_dispatch:
     # Manual trigger; set test_email to true to only verify SMTP delivery.
     inputs:
